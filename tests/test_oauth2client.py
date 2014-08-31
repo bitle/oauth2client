@@ -963,6 +963,32 @@ class FlowFromCachedClientsecrets(unittest.TestCase):
     self.assertEquals('foo_client_secret', flow.client_secret)
 
 
+class FlowFromClientsecrets(unittest.TestCase):
+
+    def test_flow_from_clientsecrets_has_redirect_uri(self):
+        existing_file = 'client_secrets.json'
+        client_type, client_info = _loadfile(datafile(existing_file))
+        flow = flow_from_clientsecrets(datafile(existing_file), '')
+
+        assert flow.redirect_uri == client_info['redirect_uris'][0]
+
+    def test_flow_from_clientsecrets_overwrite_redirect_uri(self):
+        existing_file = 'client_secrets.json'
+        expected_redirect_uri = 'https://example.com/abc'
+        client_type, client_info = _loadfile(datafile(existing_file))
+        flow = flow_from_clientsecrets(datafile(existing_file), '',
+                                       redirect_uri=expected_redirect_uri)
+
+        assert flow.redirect_uri != client_info['redirect_uris'][0]
+        assert flow.redirect_uri == expected_redirect_uri
+
+    def test_flow_from_clientsecrets_has_no_redirect_uri(self):
+        existing_file = 'client_secrets_no_redirect_uri.json'
+        flow = flow_from_clientsecrets(datafile(existing_file), '')
+
+        assert flow.redirect_uri is None
+
+
 class CredentialsFromCodeTests(unittest.TestCase):
   def setUp(self):
     self.client_id = 'client_id_abc'

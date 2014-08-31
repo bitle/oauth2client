@@ -1864,7 +1864,6 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     client_type, client_info = clientsecrets.loadfile(filename, cache=cache)
     if client_type in (clientsecrets.TYPE_WEB, clientsecrets.TYPE_INSTALLED):
       constructor_kwargs = {
-          'redirect_uri': redirect_uri,
           'auth_uri': client_info['auth_uri'],
           'token_uri': client_info['token_uri'],
           'login_hint': login_hint,
@@ -1874,9 +1873,11 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
         constructor_kwargs['revoke_uri'] = revoke_uri
       if device_uri is not None:
         constructor_kwargs['device_uri'] = device_uri
+      if not redirect_uri and len(client_info['redirect_uris']) > 0:
+          redirect_uri = client_info['redirect_uris'][0]
       return OAuth2WebServerFlow(
           client_info['client_id'], client_info['client_secret'],
-          scope, **constructor_kwargs)
+          scope, redirect_uri=redirect_uri, **constructor_kwargs)
 
   except clientsecrets.InvalidClientSecretsError:
     if message:
