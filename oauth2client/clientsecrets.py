@@ -20,6 +20,7 @@ an OAuth 2.0 protected service.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
+import io
 import json
 
 
@@ -96,19 +97,22 @@ def loads(s):
   return _validate_clientsecrets(obj)
 
 
-def _loadfile(filename):
+def _loadfile(filename_or_io):
   try:
-    fp = file(filename, 'r')
+    if isinstance(filename_or_io, io.IOBase):
+      fp = filename_or_io
+    else:
+      fp = file(filename_or_io, 'r')
     try:
       obj = json.load(fp)
     finally:
       fp.close()
   except IOError:
-    raise InvalidClientSecretsError('File not found: "%s"' % filename)
+    raise InvalidClientSecretsError('File not found: "%s"' % filename_or_io)
   return _validate_clientsecrets(obj)
 
 
-def loadfile(filename, cache=None):
+def loadfile(filename_or_io, cache=None):
   """Loading of client_secrets JSON file, optionally backed by a cache.
 
   Typical cache storage would be App Engine memcache service,
@@ -142,12 +146,12 @@ def loadfile(filename, cache=None):
   _SECRET_NAMESPACE = 'oauth2client:secrets#ns'
 
   if not cache:
-    return _loadfile(filename)
+    return _loadfile(filename_or_io)
 
-  obj = cache.get(filename, namespace=_SECRET_NAMESPACE)
+  obj = cache.get(filename_or_io, namespace=_SECRET_NAMESPACE)
   if obj is None:
-    client_type, client_info = _loadfile(filename)
+    client_type, client_info = _loadfile(filename_or_io)
     obj = {client_type: client_info}
-    cache.set(filename, obj, namespace=_SECRET_NAMESPACE)
+    cache.set(filename_or_io, obj, namespace=_SECRET_NAMESPACE)
 
   return obj.iteritems().next()

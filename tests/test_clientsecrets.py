@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Unit tests for oauth2client.clientsecrets."""
+import io
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -140,6 +141,11 @@ class CachedClientsecretsTests(unittest.TestCase):
     self.assertEquals('web', client_type)
     self.assertEquals('foo_client_secret', client_info['client_secret'])
 
+  def test_io_file(self):
+    with io.open(VALID_FILE, 'r') as f:
+      client_type, client_info = clientsecrets.loadfile(f)
+      self.assertEquals('web', client_type)
+      self.assertEquals('foo_client_secret', client_info['client_secret'])
 
 if __name__ == '__main__':
   unittest.main()
