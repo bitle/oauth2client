@@ -129,7 +129,8 @@ def loadfile(filename_or_io, cache=None):
     client_type, client_info = loadfile('secrets.json', cache=memcache)
 
   Args:
-    filename: string, Path to a client_secrets.json file on a filesystem.
+    filename_or_io: string or io.IOBase, Path to a client_secrets.json
+    file on a filesystem or a file stream.
     cache: An optional cache service client that implements get() and set()
       methods. If not specified, the file is always being loaded from
       a filesystem.
