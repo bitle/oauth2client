@@ -147,5 +147,21 @@ class CachedClientsecretsTests(unittest.TestCase):
       self.assertEquals('web', client_type)
       self.assertEquals('foo_client_secret', client_info['client_secret'])
 
+  def test_io_file_cache(self):
+    with io.open(VALID_FILE, 'r') as f:
+      client_type, client_info = clientsecrets.loadfile(
+        f, cache=self.cache_mock)
+      self.assertEquals('web', client_type)
+      self.assertEquals('foo_client_secret', client_info['client_secret'])
+
+      cached = self.cache_mock.cache[VALID_FILE]
+      self.assertEquals({client_type: client_info}, cached)
+
+      # make sure we're using non-empty namespace
+      ns = self.cache_mock.last_set_ns
+      self.assertTrue(bool(ns))
+      # make sure they're equal
+      self.assertEquals(ns, self.cache_mock.last_get_ns)
+
 if __name__ == '__main__':
   unittest.main()

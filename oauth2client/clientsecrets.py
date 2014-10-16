@@ -148,10 +148,17 @@ def loadfile(filename_or_io, cache=None):
   if not cache:
     return _loadfile(filename_or_io)
 
-  obj = cache.get(filename_or_io, namespace=_SECRET_NAMESPACE)
+  obj = cache.get(_get_name(filename_or_io), namespace=_SECRET_NAMESPACE)
   if obj is None:
     client_type, client_info = _loadfile(filename_or_io)
     obj = {client_type: client_info}
-    cache.set(filename_or_io, obj, namespace=_SECRET_NAMESPACE)
+    cache.set(_get_name(filename_or_io), obj, namespace=_SECRET_NAMESPACE)
 
   return obj.iteritems().next()
+
+
+def _get_name(filename_or_io):
+  if isinstance(filename_or_io, io.IOBase):
+    return filename_or_io.name
+  else:
+    return filename_or_io
